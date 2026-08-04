@@ -1,0 +1,216 @@
+SAFEROUTE AI - PROJECT PLAN
+============================
+
+1. TECH STACK
+-------------
+Frontend:      Next.js 16 (App Router), TypeScript, Tailwind CSS v4
+Backend:       FastAPI (Python 3.12+), Pydantic v2
+Database:      MongoDB + Motor (async) + Beanie ODM
+Maps:          Google Maps API / Mapbox
+3D/UI:         Three.js, GSAP, Framer Motion, Lucide Icons
+LLM:           LangChain + OpenAI GPT / Gemini
+ML/CV:         PyTorch, TorchVision, OpenCV, Pillow, NumPy
+Scraping:      Newspaper3k, BeautifulSoup, Selenium (incident search)
+APIs:          Google News API / NewsAPI / SerpAPI (incident lookup)
+DevOps:        Docker, Docker Compose
+Linting:       Ruff (Python), ESLint (TS)
+
+
+2. PHASES
+---------
+
+PHASE 1 - FOUNDATION (COMPLETED)
+  - Project scaffolding (frontend + backend + docker)
+  - Landing page with Three.js/GSAP interactivity
+  - Route planner UI with map, score, hazards
+  - About page with team info
+  - MongoDB connection layer
+  - FastAPI lifespan, pydantic-settings, CORS
+  - Docker Compose (Mongo + Backend + Frontend)
+
+PHASE 2 - ROUTE & SAFETY ENGINE
+  [ ] Google Maps Directions API integration (multiple routes)
+  [ ] Route parsing & polyline decoding
+  [ ] Safety scoring algorithm (base):
+      - Hazard density from image dataset
+      - Historical incident data weight
+      - Real-time news/incident scraper
+  [ ] Incident Search Module:
+      - Scrape news articles for route-related accidents
+      - Use NewsAPI / Google News RSS / SerpAPI
+      - Extract: incident type, severity, date, location
+      - Cache results per route (MongoDB TTL)
+      - Factor into safety score dynamically
+  [ ] LLM Integration:
+      - Natural language preference parser (e.g. "avoid highways at night")
+      - Route explanation generator
+      - Incident summary in plain English
+  [ ] Database models:
+      - routes collection
+      - hazards collection
+      - incidents collection (cached scraped data)
+      - user_queries collection
+
+PHASE 3 - IMAGE & HAZARD PIPELINE
+  [ ] Road image dataset (preloaded, auto-updating)
+  [ ] Image fetcher service (OpenStreetMap tiles, traffic cameras)
+  [ ] Computer vision model:
+      - Pothole detection
+      - Waterlogging detection
+      - Road damage classification
+  [ ] Image preprocessing pipeline (OpenCV)
+  [ ] Hazard annotation storage & retrieval
+  [ ] Auto-update scheduler for fresh images
+
+PHASE 4 - FULL STACK INTEGRATION
+  [ ] Frontend <-> Backend data flow complete
+  [ ] Real-time safety score updates
+  [ ] Route comparison UI (side-by-side scores)
+  [ ] Incident feed on route details page
+  [ ] User feedback loop (report hazard, rate route)
+  [ ] Loading states, error handling, empty states
+  [ ] Responsive design polish
+
+PHASE 5 - ADVANCED FEATURES
+  [ ] Crowd-sourced hazard reporting
+  [ ] User authentication (NextAuth)
+  [ ] Favorite/saved routes
+  [ ] Route history & analytics
+  [ ] Push notifications for route hazards
+  [ ] PWA support
+  [ ] Mobile app (React Native / Expo)
+
+
+3. INCIDENT SEARCH FLOW
+-----------------------
+User enters route
+        │
+        ▼
+Fetch route path from Google Maps API
+        │
+        ▼
+LLM extracts key locations/road names
+        │
+        ▼
+Incident Searcher queries:
+  ├─ NewsAPI / Google News for recent accidents
+  ├─ Traffic incident APIs (if available)
+  └─ Stored MongoDB cache (check TTL)
+        │
+        ▼
+Parse & classify incidents (type, severity, date)
+        │
+        ▼
+Dynamic score adjustment:
+  base_score = hazard_density_score
+  incident_penalty = sum(incident_severity * recency_weight)
+  final_score = base_score - incident_penalty
+        │
+        ▼
+Return score + incident summary to frontend
+
+
+4. SAFETY SCORING FORMULA
+-------------------------
+Base Score = 100
+Hazard Penalty    = Σ (hazard_severity * hazard_weight)
+Incident Penalty  = Σ (incident_severity * recency_factor)
+Preference Bonus  = match_llm_preferences(route, user_query)
+
+Final Score = Base - Hazard_Penalty - Incident_Penalty + Preference_Bonus
+             (clamped to 0-100)
+
+Severity Weights:
+  critical  = 25 pts
+  warning   = 12 pts
+  info      = 5 pts
+
+Recency Factor (incidents):
+  < 1 day   = 1.0
+  < 1 week  = 0.7
+  < 1 month = 0.4
+  > 1 month = 0.1
+
+
+5. DATABASE SCHEMA
+------------------
+routes:        { _id, start, end, polyline, safety_score, created_at }
+hazards:       { _id, route_id, type, severity, location, image_url }
+incidents:     { _id, route_id, title, source, severity, date, description, url }
+user_queries:  { _id, start, end, preferences, llm_response, created_at }
+
+
+6. FILE STRUCTURE
+-----------------
+SafeRouteAI/
+├── frontend/
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── page.tsx              # Landing page
+│   │   │   ├── planner/page.tsx      # Route planner
+│   │   │   ├── about/page.tsx        # About team
+│   │   │   └── layout.tsx            # Root layout
+│   │   ├── components/
+│   │   │   ├── Navbar.tsx, Footer.tsx
+│   │   │   ├── RouteInput.tsx, MapView.tsx
+│   │   │   ├── SafetyScore.tsx, HazardList.tsx
+│   │   │   ├── RouteAlternatives.tsx
+│   │   │   ├── IncidentFeed.tsx       # NEW: incident list
+│   │   │   ├── ThreeParticles.tsx, FloatingShield.tsx
+│   │   │   ├── AnimatedSection.tsx
+│   │   │   └── ErrorBoundary.tsx
+│   │   ├── services/api.ts
+│   │   └── types/index.ts
+│   ├── Dockerfile
+│   └── package.json
+├── backend/
+│   ├── app/
+│   │   ├── main.py, config.py
+│   │   ├── routes/
+│   │   │   ├── safety.py       # check-route endpoint
+│   │   │   ├── images.py       # image fetch endpoints
+│   │   │   └── incidents.py    # NEW: incident endpoints
+│   │   ├── models/
+│   │   │   └── prediction.py   # Pydantic models
+│   │   ├── services/
+│   │   │   ├── safety_analyzer.py  # scoring algorithm
+│   │   │   ├── image_fetcher.py    # image sources
+│   │   │   └── incident_searcher.py # NEW: scrape incidents
+│   │   ├── database/
+│   │   │   └── mongodb.py
+│   │   └── utils/helpers.py
+│   ├── Dockerfile
+│   └── requirements.txt
+├── data/images/
+├── notebooks/
+├── plan.txt
+├── work-log.txt
+└── docker-compose.yml
+
+
+7. CURRENT STATUS BREAKDOWN
+---------------------------
+[COMPLETED]  Project scaffolding
+[COMPLETED]  Landing page (Three.js + GSAP)
+[COMPLETED]  Route planner UI
+[COMPLETED]  About page
+[COMPLETED]  Navbar + Footer
+[COMPLETED]  FastAPI config + lifespan
+[COMPLETED]  MongoDB connection layer
+[COMPLETED]  Docker Compose
+[PENDING]    Google Maps route integration
+[PENDING]    Incident search module
+[PENDING]    Safety scoring algorithm
+[PENDING]    LLM integration
+[PENDING]    Image dataset & CV pipeline
+[PENDING]    User feedback system
+[PENDING]    Authentication
+
+
+8. KEY METRICS & GOALS
+----------------------
+- Safety score range: 0-100
+- Hazard types: pothole, waterlogging, road damage, accident, construction
+- Incident auto-refresh: every 6 hours per route cache
+- Route generation: 3 alternatives per query
+- Response time target: < 3s for full analysis
