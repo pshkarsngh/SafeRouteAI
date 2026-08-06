@@ -7,7 +7,15 @@ import Header from "@/components/layout/Header";
 import Intro from "@/sections/Intro";
 
 export default function Home() {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => {
+    if (typeof window === "undefined") return true;
+
+    if (sessionStorage.getItem("preloader-shown")) return false;
+
+    sessionStorage.setItem("preloader-shown", "true");
+
+    return true;
+  });
 
   return (
     <>
@@ -17,8 +25,10 @@ export default function Home() {
         />
       )}
 
-      {/* Floating Menu */}
-      <Header />
+      {!loading && (
+        /* Floating Menu */
+        <Header />
+      )}
 
       {/* Hero Section */}
       <Intro />

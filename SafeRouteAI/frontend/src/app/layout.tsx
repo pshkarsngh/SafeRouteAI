@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 
 import "./globals.css";
 
+import { PreloaderProvider } from "@/components/preloader";
+
 export const metadata: Metadata = {
   title: "Navora",
   description: "Built with Next.js 16, React 19, and TypeScript",
@@ -14,7 +16,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <PreloaderProvider>
+          {children}
+        </PreloaderProvider>
+      </body>
     </html>
   );
 }
