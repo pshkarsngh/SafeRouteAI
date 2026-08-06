@@ -1,0 +1,109 @@
+.header {
+  position: fixed;
+
+  top: 30px;
+  right: 30px;
+
+  width: 100px;
+  height: 40px;
+
+  pointer-events: none;
+
+  z-index: 99999;
+
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+
+.menu {
+  position: absolute;
+
+  top: 0;
+  right: 0;
+
+  width: 100px;
+  height: 40px;
+
+  background: #c9fd74;
+
+  border-radius: 25px;
+
+  overflow: hidden;
+
+  pointer-events: all;
+
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.15);
+
+  will-change: width, height, top, right, transform;
+
+  transform-origin: top right;
+}
+
+/* ===========================
+   Large Desktop
+=========================== */
+
+@media (min-width: 1440px) {
+  .header {
+    top: 40px;
+    right: 40px;
+  }
+}
+
+/* ===========================
+   Laptop
+=========================== */
+
+@media (max-width: 1200px) {
+  .header {
+    top: 24px;
+    right: 24px;
+  }
+}
+
+/* ===========================
+   Tablet
+=========================== */
+
+@media (max-width: 768px) {
+  .header {
+    top: 20px;
+    right: 20px;
+  }
+
+  .menu {
+    border-radius: 22px;
+  }
+}
+
+/* ===========================
+   Mobile
+=========================== */
+
+@media (max-width: 480px) {
+  .header {
+    top: 16px;
+    right: 16px;
+  }
+
+  .menu {
+    border-radius: 20px;
+  }
+}
+
+/* ===========================
+   Small Mobile
+=========================== */
+
+@media (max-width: 360px) {
+  .header {
+    top: 12px;
+    right: 12px;
+  }
+
+  .menu {
+    border-radius: 18px;
+  }
+}

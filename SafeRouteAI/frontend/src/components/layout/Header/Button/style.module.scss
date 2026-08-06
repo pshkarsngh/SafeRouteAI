@@ -1,0 +1,123 @@
+.button {
+  position: absolute;
+
+  top: 0;
+  right: 0;
+
+  width: 100px;
+  height: 40px;
+
+  overflow: hidden;
+
+  border-radius: 25px;
+
+  cursor: pointer;
+
+  pointer-events: all;
+
+  z-index: 10;
+}
+
+.slider {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 200%;
+
+  display: flex;
+  flex-direction: column;
+
+  will-change: transform;
+}
+
+.el {
+  width: 100%;
+  height: 40px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &:nth-child(1) {
+    background: #c9fd74;
+
+    p {
+      color: #000;
+    }
+  }
+
+  &:nth-child(2) {
+    background: #000;
+
+    p {
+      color: #c9fd74;
+    }
+  }
+
+  &:hover {
+    .perspectiveText {
+      transform: rotateX(90deg);
+
+      p:nth-child(1) {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+
+      p:nth-child(2) {
+        
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.perspectiveText {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  transform-style: preserve-3d;
+
+  transition: transform 0.75s cubic-bezier(0.76, 0, 0.24, 1);
+
+  p {
+    position: absolute;
+
+    margin: 0;
+
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+
+    text-transform: uppercase;
+
+    user-select: none;
+
+    pointer-events: none;
+
+    transition:
+      transform 0.75s cubic-bezier(0.76, 0, 0.24, 1),
+      opacity 0.75s cubic-bezier(0.76, 0, 0.24, 1);
+
+    &:nth-child(1) {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    &:nth-child(2) {
+      transform-origin: bottom center;
+      transform: rotateX(-90deg) translateY(9px);
+      opacity: 0;
+    }
+  }
+}
