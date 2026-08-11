@@ -35,21 +35,3 @@
   z-index: 1;
   display: block;
 }
-
-.click-prompt {
-  position: relative;
-  z-index: 2;
-
-  margin: 0;
-
-  color: #fff;
-  cursor: pointer;
-
-  font-family: Helvetica, sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 6px;
-  text-transform: uppercase;
-
-  user-select: none;
-}

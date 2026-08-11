@@ -3,13 +3,13 @@ import Intro from './sections/Intro'
 import Search from './pages/Search'
 import Projects from './pages/Projects'
 import Navbar from './components/Navigation/Navbar'
-import FullScreenNav from './components/Navigation/FullScreenNav'
+import SideMenu from './components/SideMenu'
 
 const App = () => {
   return (
     <div className="overflow-x-hidden">
       <Navbar />
-      <FullScreenNav />
+      <SideMenu />
       <Routes>
         <Route path="/" element={<Intro />} />
         <Route path="/search" element={<Search />} />

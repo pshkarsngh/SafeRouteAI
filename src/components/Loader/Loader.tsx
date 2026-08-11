@@ -11,14 +11,12 @@ interface LoaderProps {
 
 function Loader({ onRevealed, armDelay = 0 }: LoaderProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const clickPromptRef = useRef<HTMLParagraphElement>(null)
-  const [revealed, setRevealed] = useState(false)
   const [armed, setArmed] = useState(() => armDelay === 0)
-  const armedRef = useRef(armed)
 
+  const onRevealedRef = useRef(onRevealed)
   useEffect(() => {
-    armedRef.current = armed
-  }, [armed])
+    onRevealedRef.current = onRevealed
+  }, [onRevealed])
 
   useEffect(() => {
     if (armDelay <= 0) return
@@ -26,20 +24,12 @@ function Loader({ onRevealed, armDelay = 0 }: LoaderProps) {
     return () => window.clearTimeout(id)
   }, [armDelay])
 
-  useEffect(() => {
-    if (!armed || !clickPromptRef.current) return
-    gsap.to(clickPromptRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 0.5,
-      ease: 'power2.out',
-    })
-  }, [armed])
-
-  const onRevealedRef = useRef(onRevealed)
-  useEffect(() => {
-    onRevealedRef.current = onRevealed
-  }, [onRevealed])
+  const uniformsRef = useRef<{
+    uTransition: { value: number }
+    uResolution: { value: THREE.Vector2 }
+    uTime: { value: number }
+    uBorderColor: { value: THREE.Color }
+  } | null>(null)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -67,6 +57,8 @@ function Loader({ onRevealed, armDelay = 0 }: LoaderProps) {
       uBorderColor: { value: new THREE.Color('blue') },
     }
 
+    uniformsRef.current = uniforms
+
     const geometry = new THREE.PlaneGeometry(2, 2)
 
     const material = new THREE.ShaderMaterial({
@@ -93,42 +85,6 @@ function Loader({ onRevealed, armDelay = 0 }: LoaderProps) {
 
     window.addEventListener('resize', handleResize)
 
-    let isRevealed = false
-
-    const handleClick = () => {
-      if (!armedRef.current || isRevealed) return
-      isRevealed = true
-
-      if (clickPromptRef.current) {
-        gsap.to(clickPromptRef.current, {
-          opacity: 0,
-          y: -25,
-          duration: 0.5,
-          ease: 'power2.inOut',
-        })
-      }
-
-      gsap.to(uniforms.uBorderColor.value, {
-        r: 1,
-        g: 1,
-        b: 1,
-        duration: 3.0,
-        ease: 'power2.inOut',
-      })
-
-      gsap.to(uniforms.uTransition, {
-        value: 1.0,
-        duration: 3.0,
-        ease: 'power2.inOut',
-        onComplete: () => {
-          setRevealed(true)
-          onRevealedRef.current?.()
-        },
-      })
-    }
-
-    window.addEventListener('click', handleClick)
-
     const clock = new THREE.Clock()
 
     let animationId: number
@@ -146,7 +102,6 @@ function Loader({ onRevealed, armDelay = 0 }: LoaderProps) {
     return () => {
       cancelAnimationFrame(animationId)
       window.removeEventListener('resize', handleResize)
-      window.removeEventListener('click', handleClick)
 
       geometry.dispose()
       material.dispose()
@@ -154,18 +109,50 @@ function Loader({ onRevealed, armDelay = 0 }: LoaderProps) {
     }
   }, [])
 
+  const startedRef = useRef(false)
+
+  useEffect(() => {
+    if (!armed || !uniformsRef.current || startedRef.current) return
+    startedRef.current = true
+
+    const uniforms = uniformsRef.current
+    const tweens: gsap.core.Tween[] = []
+
+    tweens.push(
+      gsap.to(uniforms.uBorderColor.value, {
+        r: 1,
+        g: 1,
+        b: 1,
+        delay: 0.5,
+        duration: 3.0,
+        ease: 'power2.inOut',
+      }),
+    )
+
+    tweens.push(
+      gsap.to(uniforms.uTransition, {
+        value: 1.0,
+        delay: 0.5,
+        duration: 3.0,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          onRevealedRef.current?.()
+        },
+      }),
+    )
+
+    return () => {
+      tweens.forEach((t) => t.kill())
+      startedRef.current = false
+    }
+  }, [armed])
+
   return (
     <div
       id="loader"
-      style={{
-        opacity: armed ? 1 : 0,
-        pointerEvents: armed && !revealed ? 'all' : 'none',
-      }}
+      style={{ opacity: armed ? 1 : 0, pointerEvents: 'none' }}
     >
       <canvas ref={canvasRef} id="loader-canvas"></canvas>
-      <p ref={clickPromptRef} className="click-prompt" style={{ opacity: 0 }}>
-        CLICK TO REVEAL
-      </p>
     </div>
   )
 }
