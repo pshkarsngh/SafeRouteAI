@@ -1,0 +1,53 @@
+/* ==========================================
+   PAGE LOADER
+   ========================================== */
+
+.pl-loader {
+  position: fixed;
+  inset: 0;
+
+  width: 100%;
+  height: 100vh;
+
+  overflow: hidden;
+
+  z-index: 99999;
+
+  pointer-events: none;
+}
+
+.pl-page {
+  position: absolute;
+  top: 100%;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+}
+
+.pl-page-1 {
+  background: #000000;
+  z-index: 1;
+}
+
+.pl-page-2 {
+  background: #ffffff;
+  z-index: 2;
+}
+
+.pl-page-3 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: #000000;
+  z-index: 3;
+}
+
+.pl-lottie {
+  width: min(320px, 60vw);
+  height: auto;
+  aspect-ratio: 1;
+
+  opacity: 0.9;
+}

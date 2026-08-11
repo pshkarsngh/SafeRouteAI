@@ -1,0 +1,188 @@
+/* ==========================================
+   PRELOADER
+========================================== */
+
+#loader {
+  position: fixed;
+  inset: 0;
+
+  width: 100%;
+  height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: #000;
+
+  overflow: hidden;
+
+  z-index: 99999;
+
+  transition:
+    background 0.2s ease;
+
+  will-change: opacity;
+}
+
+/* ==========================================
+   LOADING TEXT
+========================================== */
+
+.loader-text {
+  position: absolute;
+
+  top: 40px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  color: #fff;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  letter-spacing: 6px;
+  text-transform: uppercase;
+
+  user-select: none;
+}
+
+/* ==========================================
+   STAR
+========================================== */
+
+#loader-star {
+  width: 120px;
+  height: 120px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  transform-origin: center;
+
+  will-change: transform, opacity;
+
+  z-index: 2;
+}
+
+.loader-star {
+  width: 100%;
+  height: auto;
+
+  display: block;
+
+  user-select: none;
+  pointer-events: none;
+
+  opacity: 1;
+
+  will-change: transform, opacity;
+}
+
+/* ==========================================
+   STAR FADE
+========================================== */
+
+@keyframes starFadeOut {
+
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 0;
+  }
+
+}
+
+.loader-star.fade-out {
+  animation: starFadeOut .1s ease forwards;
+}
+
+/* ==========================================
+   COUNTER
+========================================== */
+
+#loader-number {
+  position: absolute;
+
+  left: 40px;
+  bottom: 35px;
+
+  color: #fff;
+
+  font-size: clamp(60px, 7vw, 95px);
+  font-weight: 800;
+
+  line-height: 1;
+
+  letter-spacing: -2px;
+
+  user-select: none;
+
+  z-index: 2;
+}
+
+#loader-number span {
+  font-size: .4em;
+  margin-left: 4px;
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 992px) {
+
+  #loader-star {
+    width: 100px;
+    height: 100px;
+  }
+
+  #loader-number {
+    font-size: 72px;
+  }
+
+}
+
+@media (max-width: 768px) {
+
+  .loader-text {
+    top: 28px;
+
+    font-size: 12px;
+
+    letter-spacing: 4px;
+  }
+
+  #loader-star {
+    width: 90px;
+    height: 90px;
+  }
+
+  #loader-number {
+    left: 24px;
+    bottom: 24px;
+
+    font-size: 56px;
+  }
+
+}
+
+@media (max-width: 480px) {
+
+  #loader-star {
+    width: 72px;
+    height: 72px;
+  }
+
+  #loader-number {
+    left: 18px;
+    bottom: 18px;
+
+    font-size: 42px;
+  }
+
+}
