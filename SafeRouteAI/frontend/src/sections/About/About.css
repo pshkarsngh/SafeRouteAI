@@ -1,0 +1,109 @@
+/* ==========================================
+   ABOUT SECTION
+========================================== */
+
+#about {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+
+  background: #000;
+
+  overflow: hidden;
+}
+
+/* ==========================================
+   CONTAINER
+========================================== */
+
+.about-container {
+  position: relative;
+  z-index: 5;
+
+  max-width: 1400px;
+  width: 100%;
+
+  margin: 0 auto;
+
+  padding: 180px 60px 80px;
+
+  color: #fff;
+
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* ==========================================
+   EYEBROW
+========================================== */
+
+.about-eyebrow {
+  margin: 0;
+
+  color: #d6ff00;
+
+  text-transform: uppercase;
+
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 3px;
+}
+
+/* ==========================================
+   TITLE
+========================================== */
+
+.about-title {
+  margin: 0;
+
+  max-width: 900px;
+
+  font-size: clamp(40px, 6vw, 90px);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -3px;
+
+  text-transform: uppercase;
+}
+
+/* ==========================================
+   BODY
+========================================== */
+
+.about-body {
+  max-width: 620px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.about-body p {
+  margin: 0;
+
+  font-size: 18px;
+  line-height: 1.8;
+
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 1024px) {
+  .about-container {
+    padding: 140px 30px 60px;
+  }
+}
+
+@media (max-width: 768px) {
+  .about-container {
+    padding: 120px 25px 50px;
+  }
+
+  .about-body p {
+    font-size: 16px;
+  }
+}

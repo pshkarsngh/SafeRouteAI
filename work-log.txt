@@ -1,0 +1,169 @@
+RULES I FOLLOW:
+- Every user request gets a unique [REQ-###] tag.
+- Each entry is separated by "----------------------------------".
+- Entries are differentiated by date [YYYY-MM-DD] and req-number [REQ-###].
+- Each entry includes a "Work Done:" line with detailed description of what was implemented.
+- Status updated to DONE after task completion.
+
+============================================================
+
+Work Log - Major Project
+========================
+
+---
+[REQ-001] [2026-06-30] Create work-log.txt in Major Project folder.
+Work Done: Created D:\Major Peoject\work-log.txt with header "Work Log - Major Project", date line, and placeholder "--- No entries yet ---".
+Status: DONE
+----------------------------------
+[REQ-002] [2026-06-30] Add consistent tag format for log entries.
+Work Done: Added format template at top of file showing [YYYY-MM-DD] | <status> | <description> format with an example entry.
+Status: DONE
+----------------------------------
+[REQ-003] [2026-06-30] Change to per-request entries with REQ-### tags.
+Work Done: Replaced format template with [REQ-001] style tags. Each request now gets its own numbered entry. Removed "--- No entries yet ---" placeholder.
+Status: DONE
+----------------------------------
+[REQ-004] [2026-06-30] Update format with separators, date & req-number differentiation.
+Work Done: Added "----------------------------------" separator between entries. Entries now use dual differentiation: date [YYYY-MM-DD] and sequential req-number [REQ-###].
+Status: DONE
+----------------------------------
+[REQ-005] [2026-06-30] Update work-log.txt with all current session requests.
+Work Done: Logged all 5 requests from the initial session into the file with proper format.
+Status: DONE
+----------------------------------
+[REQ-006] [2026-06-30] Brainstorm SafeRouteAI project idea - safest path travel using images.
+Work Done: Discussed SafeRouteAI concept (user checks safest path via images + prediction). Answered tech stack questions (chose Python+FastAPI). Discussed image sourcing options (public traffic cameras, OpenStreetMap tiles, Mapillary API for zero-cost auto-updating images).
+Status: DONE
+----------------------------------
+[REQ-007] [2026-06-30] Set up SafeRouteAI project structure with FastAPI.
+Work Done: Created directory tree: app/routes/, app/models/, app/services/, app/utils/, data/images/, notebooks/. Added __init__.py files to all subdirectories.
+Status: DONE
+----------------------------------
+[REQ-008] [2026-06-30] Create app core files (main.py, config.py, __init__.py).
+Work Done: Created app/main.py (FastAPI entry point with root endpoint), app/config.py (BASE_DIR, DATA_DIR, IMAGES_DIR paths, API_TITLE, API_VERSION, DEFAULT_IMAGE_SOURCE).
+Status: DONE
+----------------------------------
+[REQ-009] [2026-06-30] Create route modules (safety.py, images.py).
+Work Done: Created app/routes/safety.py (GET /check-path endpoint accepting start/end params), app/routes/images.py (GET /fetch endpoint accepting location param).
+Status: DONE
+----------------------------------
+[REQ-010] [2026-06-30] Create services layer (image_fetcher.py, safety_analyzer.py).
+Work Done: Created app/services/image_fetcher.py (ImageFetcher class with fetch_static_map and fetch_traffic_camera stubs), app/services/safety_analyzer.py (SafetyAnalyzer class with analyze_path and predict_safety stubs).
+Status: DONE
+----------------------------------
+[REQ-011] [2026-06-30] Create models (prediction.py) and utils (helpers.py).
+Work Done: Created app/models/prediction.py (SafetyRequest and SafetyResponse Pydantic models), app/utils/helpers.py (cache_key function using MD5 hash).
+Status: DONE
+----------------------------------
+[REQ-012] [2026-06-30] Create requirements.txt with project dependencies.
+Work Done: Created requirements.txt with fastapi, uvicorn, pydantic, httpx, Pillow, numpy, opencv-python, torch, torchvision, python-multipart.
+Status: DONE
+----------------------------------
+[REQ-013] [2026-06-30] Review project synopsis and PPT for SafeRouteAI.
+Work Done: Read through the detailed project synopsis (abstract, intro, problem statement, objectives, methodology, system architecture) and PPT slides. Noted tech stack requirements: React.js frontend, Node.js/Express.js backend (later changed to FastAPI), MongoDB, Google Maps API, OpenAI GPT.
+Status: DONE
+----------------------------------
+[REQ-014] [2026-06-30] Restructure SafeRouteAI as full-stack project (FastAPI backend + React frontend + MongoDB).
+Work Done: Removed old flat Python structure. Created new directory tree: backend/ (FastAPI + MongoDB), frontend/ (React), data/images/, notebooks/. Set up all __init__.py files and organized into proper modules.
+Status: DONE
+----------------------------------
+[REQ-015] [2026-06-30] Create backend folder with FastAPI app, routes, models, services, database layer.
+Work Done: Created backend/app/main.py (FastAPI entry with CORS for React on port 3000), config.py (MongoDB URI, API keys, paths), routes/safety.py (POST /check-route endpoint), routes/images.py (GET /fetch and /dataset endpoints), models/prediction.py (SafetyRequest/SafetyResponse Pydantic models with HazardInfo), services/image_fetcher.py (stub for fetching static maps + traffic cameras), services/safety_analyzer.py (stub for path analysis and prediction), database/mongodb.py (async MongoDB connection using motor), utils/helpers.py (cache_key function), requirements.txt (fastapi, uvicorn, motor, httpx, Pillow, numpy, opencv-python, torch, etc.), and .env file.
+Status: DONE
+----------------------------------
+[REQ-016] [2026-06-30] Create React frontend with components (MapView, RouteInput, SafetyScore, HomePage).
+Work Done: Created frontend/public/index.html, src/index.js (React entry), src/App.js (root component), src/services/api.js (API client with checkRoute and fetchImages functions), src/components/MapView.js (map placeholder), src/components/RouteInput.js (start/destination form), src/components/SafetyScore.js (score display), src/pages/HomePage.js (assembles all components), package.json (react 18, react-dom, react-scripts), and .env file.
+Status: DONE
+----------------------------------
+[REQ-017] [2026-06-30] Add MongoDB connection module (motor) and env config files.
+Work Done: Created backend/app/database/mongodb.py with AsyncIOMotorClient, connect_db/close_db/get_db functions. Added motor==3.6.0 to requirements.txt. Created backend/.env with MONGO_URI, MONGO_DB_NAME, GOOGLE_MAPS_API_KEY, OPENAI_API_KEY. Created frontend/.env with REACT_APP_API_URL and REACT_APP_GOOGLE_MAPS_API_KEY.
+Status: DONE
+----------------------------------
+[REQ-018] [2026-06-30] Update all past log entries with "Work Done:" details and update RULES.
+Work Done: Rewrote REQ-001 to REQ-012 with detailed Work Done descriptions based on session history. Updated RULES section to mandate Work Done line in every entry.
+Status: DONE
+----------------------------------
+[REQ-019] [2026-06-30] Build complete React frontend for SafeRouteAI.
+Work Done: Updated package.json with react-router-dom, @react-google-maps/api, react-icons. Created App.css with full responsive styling (navbar, cards, map, score, hazards, loading states, about page). Created Navbar.js (logo + nav links), Footer.js, LoadingSpinner.js. Enhanced RouteInput.js with start/destination fields and LLM preference textarea. Built MapView.js with Google Maps integration (LoadScript, DirectionsRenderer, fallback placeholder). Built SafetyScore.js with color-coded score circle (safe/moderate/unsafe) and explanation box. Built HazardList.js with severity icons (critical/warning/info). Built RouteAlternatives.js with selectable route cards showing score, distance, duration, hazards. Created HomePage.js with full flow: search form -> loading -> results grid (score + hazards) + alternatives. Created AboutPage.js with project info, how-it-works, team section. Updated App.js with React Router (/, /about routes). Updated index.js with BrowserRouter wrapper. Added public/index.html with Inter font.
+Status: DONE
+----------------------------------
+[REQ-020] [2026-06-30] Upgrade entire project to latest technologies (Next.js 15, React 19, TypeScript, Tailwind v4, FastAPI with lifespan).
+Work Done: Removed old CRA frontend. Rebuilt with Next.js 15 App Router, TypeScript strict mode, React 19, Tailwind CSS v4 with @theme custom tokens, PostCSS. Created next.config.ts, tsconfig.json with @/ path alias, postcss.config.js, .env.local. Created root layout.tsx with Inter font, metadata, QueryProvider. Created page.tsx with TanStack React Query (useQuery) for API data fetching. Created about/page.tsx as server component with project info and team. Created loading.tsx. Created TypeScript types/index.ts (HazardInfo, RouteAlternative, SafetyResponse, RouteFormData). Rebuilt all components in TypeScript: Navbar.tsx with usePathname, Footer, LoadingSpinner, RouteInput.tsx with controlled form, MapView.tsx with @react-google-maps/api, SafetyScore.tsx with color-coded score circle, HazardList.tsx with lucide-react icons, RouteAlternatives.tsx. Updated services/api.ts with typed fetch functions. Added QueryProvider.tsx for React Query client. Used lucide-react icons instead of react-icons.
+Work Done: Upgraded to Next.js 16.2.9 (Turbopack). Fixed postcss.config.js from ESM (export default) to CommonJS (module.exports) to resolve build error "Your custom PostCSS configuration must export a plugins key". Successfully built and running on localhost:3000.
+Status: DONE
+----------------------------------
+[REQ-021] [2026-06-30] Update backend to latest Python/FastAPI patterns and add Docker.
+Work Done: Updated config.py to use pydantic-settings (BaseSettings with .env support, typed fields). Updated mongodb.py with Database singleton class pattern (async connect/close/get_db). Updated main.py with lifespan context manager (replacing deprecated startup/shutdown). Updated prediction.py with Pydantic v2 syntax (list[X] instead of List[X], tuple[float,float] instead of bare tuple). Updated all routes to async. Added FullSafetyResponse model with alternatives. Added RouteAlternative model. Updated services/image_fetcher.py with async httpx and Google Static Maps integration. Updated services/safety_analyzer.py with PIL/numpy image loading. Updated requirements.txt with latest versions (fastapi>=0.115, pydantic-settings, beanie, langchain, langchain-openai, etc.). Created backend/Dockerfile (Python 3.12-slim, multi-stage). Created frontend/Dockerfile (Node 22-alpine, multi-stage build). Created docker-compose.yml (MongoDB 7 + backend + frontend services with volumes and depends_on). Updated backend/.env for Docker networking (mongodb://mongodb:27017).
+Status: DONE
+----------------------------------
+[REQ-022] [2026-06-30] Upgrade Next.js to v16 and fix frontend build errors.
+Work Done: Updated package.json next dependency from ^15.2.0 to ^16.0.0. Ran npm install which installed Next.js 16.2.9. Fixed postcss.config.js from ESM (export default) to CommonJS (module.exports) to resolve "Your custom PostCSS configuration must export a plugins key" error. Successfully built with Turbopack in 3s. Dev server running on localhost:3000 returning 200.
+Status: DONE
+----------------------------------
+[REQ-023] [2026-06-30] Initialize git repo and stage all project files.
+Work Done: Ran git init in D:\Major Peoject. Staged SafeRouteAI/ and work-log.txt. Not committed per user request.
+Status: CANCELLED
+----------------------------------
+[REQ-024] [2026-06-30] Create landing page for SafeRouteAI.
+Work Done: Created new landing page at src/app/page.tsx with hero section (gradient bg, badge, headline, CTAs), features grid (4 cards: Multi-Route, Hazard Detection, Safety Scoring, LLM Queries), how-it-works section (4 steps with numbered circles and connecting line), and CTA section at bottom. Moved old route planner to src/app/planner/page.tsx. Updated Navbar.tsx to add Planner link between Home and About. All routes (/, /planner, /about) build and serve successfully.
+Status: DONE
+----------------------------------
+[REQ-025] [2026-06-30] Make landing page interactive with GSAP, Three.js, and Framer Motion.
+Work Done: Installed dependencies (gsap, three, @react-three/fiber, @react-three/drei, framer-motion). Created ThreeParticles.tsx - 2000-particle 3D field with smooth rotation and wave animation as hero background. Created FloatingShield.tsx - floating 3D icosahedron with distort material, emissive glow, and float animation for CTA section. Created AnimatedSection.tsx - GSAP ScrollTrigger wrapper component (animates sections on scroll from bottom/left/right/fade). Updated page.tsx: hero has GSAP word-reveal animation (staggered with back.out easing), framer-motion mount animations (badge, subtitle, CTA buttons). Features section uses variants with stagger delay, whileInView triggers, and whileHover scale/translate effects. How-It-Works steps animate in from left with stagger delay and hover scale. CTA has FloatingShield 3D background, layered framer-motion fade-ins. Build successful, all type checks pass.
+Status: DONE
+----------------------------------
+[REQ-026] [2026-06-30] Fix landing page not rendering content (blank page issue).
+Work Done: Diagnosed that AnimatedSection's GSAP fromTo with ScrollTrigger was hiding content (opacity: 0) but never animating to visible because ScrollTrigger toggleActions didn't fire. Rewrote AnimatedSection: uses gsap.set() for initial state, gsap.to() + ScrollTrigger with once:true for reveal, and gsap.context() for cleanup. Added style={{ opacity: 0 }} as CSS fallback so content stays visible if JS fails. Created ErrorBoundary.tsx class component wrapped Three.js components (ThreeParticles, FloatingShield) so WebGL failures don't crash the page. Removed complex variants object that caused framer-motion type errors, replaced with inline transition props. All routes build and server returns 200.
+Status: DONE
+----------------------------------
+[REQ-028] [2026-06-30] Complete backend services and integrate with frontend.
+Work Done: Backend - Created config.py (pydantic-settings with news_api_key, gemini_api_key, cache TTLs, safety weights, recency factors). Created prediction.py models (SafetyRequest, HazardInfo, IncidentInfo, RouteInfo, RouteAlternative, SafetyResponse, FullSafetyResponse, IncidentReport, etc.). Created mongodb.py (Motor async DB client, TTL caching for incidents, geospatial indexing). Created safety_analyzer.py (scoring formula: base 50 + severity weights - recency factors + preference bonus, mock traffic data). Created incident_searcher.py (NewsAPI primary + BeautifulSoup fallback + MongoDB cache with 6h TTL). Created llm_service.py (LangChain OpenAI GPT-4o-mini primary, Gemini 2.0 Flash fallback, mock fallback). Created image_fetcher.py (Google Maps Static API + OSM tile proxy). Created routes: safety.py (POST /check-route with scoring, incidents, LLM explanation, query logging), images.py (GET /fetch, /osm-tile, /dataset), incidents.py (GET /search, /near-route). Updated main.py with lifespan, CORS, routers, health endpoint. Updated requirements.txt with all dependencies. Frontend - Updated types/index.ts (IncidentInfo, RouteInfo, FullSafetyResponse). Updated services/api.ts (all typed API calls: checkRoute, fetchImages, searchIncidents, getOsmTile). Created IncidentFeed.tsx (severity-coded cards with icons, dates, source, read-more links). Updated SafetyScore.tsx (incident count badge, improved styling). Updated RouteAlternatives.tsx (incident count per alternative + AlertTriangle icon). Updated planner/page.tsx (dynamic imports for MapView/IncidentFeed, coords state, proper form data flow). Build passes, all 4 routes (/, /about, /planner, /_not-found) static and returning 200.
+Status: DONE
+----------------------------------
+[REQ-029] [2026-08-04] Complete backend restructure for SafeRoute AI paper implementation.
+Work Done: Rebuilt entire backend to match the research paper methodology:
+- config.py: Added safety_lambda, segment_length_m, confidence_threshold, hazard class definitions (gamma/severity weights per paper)
+- models/prediction.py: Added RouteSegment, HazardDetection, decoded_coords fields, RouteAlternative with safety_score/rank_score/hazard_summary
+- services/route_service.py: Google Maps Directions API integration, polyline decoding (Google encoded format), route segmentation into ~300m segments with midpoint interpolation
+- services/hazard_detector.py: YOLOv8 service with 5 classes (pothole/crack/damaged/waterlogged/uneven), detect_from_image/array, crack severity classifier, mock fallback
+- services/safety_scorer.py: Full paper equations (3)-(6) implementation: segment hazard cost = sum(gamma*wm*pm), route safety = 100*e^(-lambda*H), rank = alpha*safety + (1-alpha)*time
+- services/llm_service.py: LLM preference parsing (natural language -> JSON with alpha/avoidClasses), route explanation generation with structured prompts
+- routes/safety.py: Full pipeline endpoint - get routes, segment, detect hazards, score, rank, LLM explain
+- routes/images.py: Added /detect endpoint for image upload hazard detection
+- train.py: YOLOv8 training script with dataset conversion (VOC->YOLO), class mapping, training loop
+- prepare_dataset.py: Dataset manager for RDD2022, RDD2020, Road Damage Dataset, RDDC2024-ID
+- predict.py: Inference script for single images/video
+- requirements.txt: Updated with ultralytics
+- Frontend types updated to match new backend response structure
+Status: DONE
+----------------------------------
+[REQ-027] [2026-06-30] Create detailed plan.txt for SafeRouteAI project.
+Work Done: Created SafeRouteAI/plan.txt with complete project plan including: tech stack (Next.js 16, FastAPI, MongoDB, Three.js, GSAP, LangChain, etc.), 5-phase roadmap (Foundation done, Route/Safety Engine, Image Pipeline, Full Stack Integration, Advanced Features), Incident Search Flow diagram (news scraping -> cache -> dynamic score adjustment), Safety Scoring Formula with severity weights and recency factors, Database Schema (routes, hazards, incidents, user_queries collections), full file structure tree, current status breakdown with [COMPLETED]/[PENDING] markers, and key metrics/goals.
+Status: DONE
+----------------------------------
+[REQ-030] [2026-08-04] Complete modern frontend rebuild for SafeRoute AI with interactive UI.
+Work Done: Rebuilt entire frontend with modern dark theme, glassmorphism, and animations:
+- globals.css: Full dark theme (surface/card/border tokens), glass effects, glow animations, custom scrollbar, gradient-text utility
+- layout.tsx: Updated with Toaster (react-hot-toast), dark theme
+- Navbar.tsx: Glass sticky nav with animated indicator (framer-motion layoutId), mobile hamburger menu with AnimatePresence
+- Footer.tsx: Glass footer with gradient branding
+- ThreeParticles.tsx: Canvas-based particle network with connection lines (replaced heavy Three.js)
+- FloatingShield.tsx: Kept Three.js icosahedron for CTA
+- LoadingSpinner.tsx: Animated spinner with bouncing dots
+- RouteInput.tsx: Glass card with gradient icons, suggestion chips (clickable), disabled states
+- SafetyScore.tsx: RadialBarChart (recharts) animated score ring, color-coded by score range, AI explanation box
+- HazardList.tsx: Grouped by severity (critical/warning/info), animated staggered entry, confidence badges
+- RouteAlternatives.tsx: Animated safety bars, route number badges, hazard summary chips, SAFEST indicator
+- MapView.tsx: Glass container with placeholder when no API key, polyline decoder
+- IncidentFeed.tsx: Severity-coded cards with relative timestamps, animated staggered entry
+- AnimatedSection.tsx: GSAP ScrollTrigger wrapper
+- page.tsx (home): Animated hero with particle network, gradient stats, feature cards with stats, tech stack grid, CTA with 3D shield
+- planner/page.tsx: Empty state with feature icons, AnimatePresence transitions, parsed preferences badges, split layout
+- about/page.tsx: Added "use client", glass cards, tech stack grid, safety formula display, team avatars
+- loading.tsx: Animated spinner with ping effect
+- types/index.ts: Added HazardSummary, confidence field, safety_score/rank_score to RouteAlternative
+- services/api.ts: Added detectHazards and healthCheck functions
+- package.json: Added recharts, clsx, tailwind-merge, react-hot-toast
+- Build passes (all 4 routes static), backend tested (200 OK, full pipeline works)
+Status: DONE
+----------------------------------

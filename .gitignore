@@ -7,10 +7,18 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+
+# Builds
 dist
 dist-ssr
-*.local
+build/
+.next/
+
+# Python
+__pycache__/
+*.pyc
 
 # Environment files
 .env
@@ -22,8 +30,11 @@ dist-ssr
 !.vscode/extensions.json
 .idea
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.swp
+*.swo
