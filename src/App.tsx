@@ -10,10 +10,11 @@ import SideMenu from './components/SideMenu/SideMenu'
 const App = () => {
   const { pathname } = useLocation()
   const hideChrome = pathname === '/' || pathname === '/search'
+  const hideNavbar = hideChrome || pathname === '/route-results'
 
   return (
     <div className="overflow-x-hidden">
-      {!hideChrome && <Navbar />}
+      {!hideNavbar && <Navbar />}
       {!hideChrome && <SideMenu />}
       <Routes>
         <Route path="/" element={<Intro />} />
@@ -25,7 +26,7 @@ const App = () => {
           element={
             <Placeholder
               title="About"
-              description="How SafeRoute scores and ranks safer routes for your journey."
+              description="How INDROUTE scores and ranks safer routes for your journey."
             />
           }
         />
@@ -43,7 +44,7 @@ const App = () => {
           element={
             <Placeholder
               title="Contact"
-              description="Get in touch with the SafeRoute team."
+              description="Get in touch with the INDROUTE team."
             />
           }
         />

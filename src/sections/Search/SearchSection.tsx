@@ -5,7 +5,6 @@ import Map, { MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM } from '../../components/map/
 import MapControls from '../../components/map/MapControls/MapControls'
 import MapMarker from '../../components/map/MapMarker/MapMarker'
 import LayerToggle from '../../components/map/LayerToggle/LayerToggle'
-import Header from '../../components/layout/Header/Header'
 import SearchBar from '../../components/Navigation/SearchBar/SearchBar'
 import { usePageLoader } from '../../components/pageLoader'
 import { useMap } from '../../hooks/useMap'
@@ -29,20 +28,47 @@ function LayerSync({ active }: { active: Set<LayerGroupId> }) {
   return null
 }
 
-function DestinationPin({ place }: { place: Place }) {
+function PlacePin({ place, variant }: { place: Place; variant: 'origin' | 'destination' }) {
   const { map } = useMap()
-  return <MapMarker map={map} lngLat={place.lngLat} />
+  return <MapMarker map={map} lngLat={place.lngLat} variant={variant} />
 }
 
-function DestinationCard({ place, onPlanRoute }: { place: Place; onPlanRoute: () => void }) {
+function TripCard({
+  origin,
+  destination,
+  onPlanRoute,
+}: {
+  origin: Place | null
+  destination: Place | null
+  onPlanRoute: () => void
+}) {
+  if (!origin && !destination) return null
+
   return (
     <div className={styles.destination}>
       <div className={styles.destinationInfo}>
-        <p className={styles.destinationLabel}>Destination</p>
-        <p className={styles.destinationName}>{place.name}</p>
-        <p className={styles.destinationRegion}>{place.region}</p>
+        {origin && (
+          <>
+            <p className={styles.destinationLabel}>Starting point</p>
+            <p className={styles.destinationName}>{origin.name}</p>
+            <p className={styles.destinationRegion}>{origin.region}</p>
+          </>
+        )}
+        {origin && destination && <div className={styles.tripDivider} />}
+        {destination && (
+          <>
+            <p className={styles.destinationLabel}>Destination</p>
+            <p className={styles.destinationName}>{destination.name}</p>
+            <p className={styles.destinationRegion}>{destination.region}</p>
+          </>
+        )}
       </div>
-      <button type="button" className={styles.planBtn} onClick={onPlanRoute}>
+      <button
+        type="button"
+        className={styles.planBtn}
+        onClick={onPlanRoute}
+        disabled={!origin || !destination}
+      >
         Plan safe route
         <span aria-hidden="true">→</span>
       </button>
@@ -55,6 +81,7 @@ export default function SearchSection() {
   const navigateWithLoader = usePageLoader()
 
   const [ready, setReady] = useState(false)
+  const [origin, setOrigin] = useState<Place | null>(null)
   const [destination, setDestination] = useState<Place | null>(null)
   const [activeLayers, setActiveLayers] = useState<Set<LayerGroupId>>(
     () => new Set<LayerGroupId>(ALL_LAYER_GROUPS),
@@ -92,15 +119,26 @@ export default function SearchSection() {
         {ready && <LayerSync active={activeLayers} />}
         {ready && (
           <>
-            <Header />
-            <SearchBar onSelect={setDestination} />
-
-            {destination && (
-              <DestinationCard
-                place={destination}
-                onPlanRoute={() => navigateWithLoader('/route-results')}
+            <div className={styles.searchHost} data-anim>
+              <SearchBar
+                variant="origin"
+                placeholder="Search starting point…"
+                onSelect={setOrigin}
               />
-            )}
+              <SearchBar
+                variant="destination"
+                placeholder="Search destination…"
+                onSelect={setDestination}
+              />
+            </div>
+
+            <TripCard
+              origin={origin}
+              destination={destination}
+              onPlanRoute={() =>
+                navigateWithLoader('/route-results', { origin, destination })
+              }
+            />
 
             <div className={styles.controlsHost} data-anim>
               <MapControls />
@@ -110,7 +148,8 @@ export default function SearchSection() {
               <LayerToggle active={activeLayers} onToggle={toggleLayer} />
             </div>
 
-            {destination && <DestinationPin place={destination} />}
+            {origin && <PlacePin place={origin} variant="origin" />}
+            {destination && <PlacePin place={destination} variant="destination" />}
           </>
         )}
       </Map>

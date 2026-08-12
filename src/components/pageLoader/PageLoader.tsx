@@ -12,10 +12,11 @@ const LOTTIE_SRC =
 
 interface PageLoaderProps {
   to: string
+  state?: unknown
   onDone: () => void
 }
 
-export default function PageLoader({ to, onDone }: PageLoaderProps) {
+export default function PageLoader({ to, state, onDone }: PageLoaderProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
 
@@ -32,7 +33,7 @@ export default function PageLoader({ to, onDone }: PageLoaderProps) {
         .to('.pl-page-3', { top: 0, duration: 1.5 }, 0.9)
 
         // Navigate once fully covered
-        .call(() => navigate(to))
+        .call(() => navigate(to, { state }))
 
         // Panels slide off the top to reveal the new page, 0.2s apart
         .to('.pl-page-3', { top: '-100%', duration: 0.5 }, 2.5)

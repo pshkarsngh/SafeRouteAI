@@ -1,10 +1,13 @@
 .wrap {
-  position: absolute;
-  top: 84px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
   width: min(560px, calc(100vw - 96px));
   z-index: 30;
+
+  &.origin {
+    .bar {
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+    }
+  }
 }
 
 .bar {
@@ -134,6 +137,6 @@
 
 @media (max-width: 640px) {
   .wrap {
-    top: 74px;
+    width: min(480px, calc(100vw - 64px));
   }
 }

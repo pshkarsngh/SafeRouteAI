@@ -6,11 +6,53 @@ import styles from './SearchBar.module.scss'
 
 const DOT_COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#6366f1']
 
-interface SearchBarProps {
-  onSelect?: (place: Place) => void
+function normalize(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, '')
+    .replace(/[^a-z0-9 ]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
-export default function SearchBar({ onSelect }: SearchBarProps) {
+function levenshtein(a: string, b: string): number {
+  const dp = Array.from({ length: a.length + 1 }, () =>
+    Array.from({ length: b.length + 1 }, () => 0),
+  )
+  for (let i = 0; i <= a.length; i += 1) dp[i][0] = i
+  for (let j = 0; j <= b.length; j += 1) dp[0][j] = j
+  for (let i = 1; i <= a.length; i += 1) {
+    for (let j = 1; j <= b.length; j += 1) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1
+      dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost)
+    }
+  }
+  return dp[a.length][b.length]
+}
+
+function placeText(place: Place): string {
+  return normalize(`${place.name} ${place.region} ${place.tags.join(' ')}`)
+}
+
+function fuzzyScore(place: Place, term: string): number | null {
+  const haystack = placeText(place)
+  if (haystack.includes(term)) return 0
+
+  const firstName = normalize(place.name).split(' ')[0]
+  const distance = levenshtein(term, firstName)
+  const maxLen = Math.max(term.length, firstName.length)
+  const normalizedDistance = distance / maxLen
+  if (normalizedDistance <= 0.3) return Number((distance + 0.1).toFixed(2))
+  return null
+}
+
+interface SearchBarProps {
+  onSelect?: (place: Place) => void
+  placeholder?: string
+  variant?: 'origin' | 'destination'
+}
+
+export default function SearchBar({ onSelect, placeholder = 'Search destination…', variant = 'destination' }: SearchBarProps) {
   const { flyTo } = useMap()
   const inputRef = useRef<HTMLInputElement | null>(null)
   const blurTimerRef = useRef<number | null>(null)
@@ -20,11 +62,23 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
   const [active, setActive] = useState(-1)
 
   const results = useMemo(() => {
-    const term = query.trim().toLowerCase()
+    const term = normalize(query)
     if (!term) return PLACES.slice(0, 5)
-    return PLACES.filter((place) =>
-      `${place.name} ${place.region} ${place.tags.join(' ')}`.toLowerCase().includes(term),
-    ).slice(0, 6)
+
+    const exact: Place[] = []
+    const fuzzy: Array<{ place: Place; score: number }> = []
+
+    PLACES.forEach((place) => {
+      if (placeText(place).includes(term)) {
+        exact.push(place)
+      } else {
+        const score = fuzzyScore(place, term)
+        if (score !== null) fuzzy.push({ place, score })
+      }
+    })
+
+    fuzzy.sort((a, b) => a.score - b.score)
+    return [...exact, ...fuzzy.map((item) => item.place)].slice(0, 6)
   }, [query])
 
   const selectPlace = (place: Place) => {
@@ -70,8 +124,10 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
     setFocused(true)
   }
 
+  const wrapClass = variant === 'origin' ? `${styles.wrap} ${styles.origin}` : styles.wrap
+
   return (
-    <div className={styles.wrap} data-anim>
+    <div className={wrapClass} data-anim>
       <div className={styles.bar} onFocus={handleFocus} onBlur={handleBlur}>
         <svg
           className={styles.searchIcon}
@@ -94,9 +150,9 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Search destination…"
+placeholder={placeholder}
           role="combobox"
-          aria-label="Search destination"
+          aria-label={placeholder}
           aria-expanded={focused && results.length > 0}
         />
 

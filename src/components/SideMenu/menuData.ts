@@ -18,6 +18,6 @@ export const defaultSocialLinks: MenuItem[] = [
   { title: "X", href: "https://x.com" },
 ];
 
-export const DEFAULT_BRAND = "STUDIO";
+export const DEFAULT_BRAND = "INDROUTE";
 export const YEAR_LABEL = "2026";
 export const COPYRIGHT_LABEL = "© 2026";

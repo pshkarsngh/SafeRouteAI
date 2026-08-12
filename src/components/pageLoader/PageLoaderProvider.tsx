@@ -7,7 +7,7 @@ import {
 } from 'react'
 import PageLoader from './PageLoader'
 
-type NavigateWithLoader = (to: string) => void
+type NavigateWithLoader = (to: string, state?: unknown) => void
 
 const PageLoaderContext = createContext<NavigateWithLoader | null>(null)
 
@@ -24,19 +24,28 @@ interface Props {
 }
 
 export default function PageLoaderProvider({ children }: Props) {
-  const [target, setTarget] = useState<{ to: string; key: number } | null>(
-    null,
-  )
+  const [target, setTarget] = useState<{
+    to: string
+    key: number
+    state: unknown
+  } | null>(null)
 
-  const navigateWithLoader = useCallback((to: string) => {
-    setTarget({ to, key: Date.now() })
+  const navigateWithLoader = useCallback((to: string, state?: unknown) => {
+    setTarget({ to, state, key: Date.now() })
   }, [])
 
   const handleDone = useCallback(() => setTarget(null), [])
 
   return (
     <PageLoaderContext.Provider value={navigateWithLoader}>
-      {target && <PageLoader key={target.key} to={target.to} onDone={handleDone} />}
+      {target && (
+        <PageLoader
+          key={target.key}
+          to={target.to}
+          state={target.state}
+          onDone={handleDone}
+        />
+      )}
       {children}
     </PageLoaderContext.Provider>
   )
