@@ -77,13 +77,28 @@ export default function RouteResults() {
     destination,
   )
 
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const recommended = routes.find((r) => r.recommended)
-  const activeRoute =
-    routes.find((r) => r.id === selectedId) ?? recommended ?? routes[0] ?? null
-  const activeIndex = activeRoute ? routes.indexOf(activeRoute) : -1
+  const [selectedRouteIndex, setSelectedRouteIndex] = useState(0)
+  const recommended = routes.find((r) => r.recommended) ?? null
   const recommendedIndex = recommended ? routes.indexOf(recommended) : -1
+  const activeIndex =
+    routes.length > 0 ? Math.min(selectedRouteIndex, routes.length - 1) : -1
+  const activeRoute = activeIndex >= 0 ? routes[activeIndex] : null
   const activeFacilities = activeRoute ? facilitiesForRoute(activeRoute, allFacilities) : []
+
+  // Keep the selected route within range whenever a new analysis arrives.
+  useEffect(() => {
+    if (routes.length > 0) {
+      setSelectedRouteIndex((index) => Math.min(index, routes.length - 1))
+    }
+  }, [routes.length])
+
+  const selectRoute = (index: number) => setSelectedRouteIndex(index)
+
+  const goToPreviousRoute = () =>
+    setSelectedRouteIndex((index) => Math.max(index - 1, 0))
+
+  const goToNextRoute = () =>
+    setSelectedRouteIndex((index) => Math.min(index + 1, routes.length - 1))
 
   // Debug: verify the UI is reading the actual analyzed route counts.
   useEffect(() => {
@@ -117,6 +132,7 @@ export default function RouteResults() {
                 routes={routes}
                 activeIndex={Math.max(0, activeIndex)}
                 recommendedIndex={recommendedIndex}
+                onSelectIndex={selectRoute}
               />
             )}
             <PlacePin place={origin} variant="origin" />
@@ -172,56 +188,61 @@ export default function RouteResults() {
                 Live facility data unavailable — scores use distance/time only.
               </p>
             )}
-            {!facilityError && activeRoute.totalFacilities === 0 && (
+            {!facilityError && activeRoute?.totalFacilities === 0 && (
               <p className={styles.facilityWarn}>
                 No support facilities were found within ~1 km of these routes.
               </p>
             )}
 
-            <ol className={styles.list}>
-              {routes.map((route, index) => (
-                <li key={route.id}>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedId(route.id)}
-                    className={[
-                      styles.row,
-                      route === activeRoute ? styles.active : '',
-                      route.rejected ? styles.rejected : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
-                  >
-                    <span className={styles.rowTop}>
-                      <span className={styles.rank}>{String(index + 1).padStart(2, '0')}</span>
-                      <span className={styles.rowName}>
-                        {route.recommended
-                          ? 'Safest route'
-                          : index === 0
-                            ? 'Best coverage'
-                            : `Route ${index + 1}`}
-                        {route.recommended && (
-                          <span className={styles.recoTag}>✓ Recommended</span>
-                        )}
-                      </span>
-                      <SafetyBadge score={route.safetyScore} />
-                    </span>
-                    <span className={styles.rowMeta}>
-                      {route.distanceStr} · {route.durationStr} ·{' '}
-                      {FACILITY_DISPLAY.slice(0, 4)
-                        .map(
-                          (f) =>
-                            `${route.facilityCounts[f.category] ?? 0} ${f.short}`,
-                        )
-                        .join(' · ')}
-                    </span>
-                    {route.rejected && route.rejectedReason && (
-                      <span className={styles.rowReject}>{route.rejectedReason}</span>
+            <nav className={styles.routeNav} aria-label="Route selection">
+              <button
+                type="button"
+                className={styles.navArrow}
+                onClick={goToPreviousRoute}
+                disabled={activeIndex <= 0}
+                aria-label="Previous route"
+              >
+                ‹
+              </button>
+              <div className={styles.navTrack}>
+                {routes.map((route, index) => (
+                  <Fragment key={route.id}>
+                    <button
+                      type="button"
+                      className={[
+                        styles.navItem,
+                        index === activeIndex ? styles.navItemActive : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
+                      onClick={() => selectRoute(index)}
+                      aria-current={index === activeIndex ? 'true' : undefined}
+                      title={
+                        route.recommended
+                          ? `Route ${index + 1} · Safest route`
+                          : `Route ${index + 1}`
+                      }
+                    >
+                      {route.recommended && (
+                        <span className={styles.navDot} aria-hidden="true" />
+                      )}
+                      {`Route ${index + 1}`}
+                    </button>
+                    {index < routes.length - 1 && (
+                      <button
+                        type="button"
+                        className={styles.navStep}
+                        onClick={goToNextRoute}
+                        disabled={activeIndex >= routes.length - 1}
+                        aria-label="Next route"
+                      >
+                        ›
+                      </button>
                     )}
-                  </button>
-                </li>
-              ))}
-            </ol>
+                  </Fragment>
+                ))}
+              </div>
+            </nav>
 
             {activeRoute && (
               <div className={styles.card}>

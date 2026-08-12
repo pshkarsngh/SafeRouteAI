@@ -1,5 +1,9 @@
 import { useEffect, useRef } from 'react'
-import { LngLatBounds, type GeoJSONSource } from 'maplibre-gl'
+import {
+  LngLatBounds,
+  type GeoJSONSource,
+  type MapLayerMouseEvent,
+} from 'maplibre-gl'
 import { useMap } from '../../../hooks/useMap'
 import type { RouteCandidate } from '../../../utils/routing'
 
@@ -21,6 +25,8 @@ interface RouteLayerProps {
   routes: RouteCandidate[]
   activeIndex: number
   recommendedIndex: number
+  /** Called when a route is clicked on the map so the UI stays in sync. */
+  onSelectIndex?: (index: number) => void
 }
 
 const SOURCE_ID = 'saferoute-routes'
@@ -32,6 +38,7 @@ interface FeatureProps {
   width: number
   opacity: number
   casing: number
+  routeIndex?: number
 }
 
 function buildFeatures(
@@ -73,7 +80,7 @@ function buildFeatures(
 
     return {
       type: 'Feature',
-      properties: props,
+      properties: { ...props, routeIndex: index },
       geometry: {
         type: 'LineString',
         coordinates: route.points,
@@ -92,15 +99,37 @@ export default function RouteLayer({
   routes,
   activeIndex,
   recommendedIndex,
+  onSelectIndex,
 }: RouteLayerProps) {
   const { map } = useMap()
   const didFitOnce = useRef(false)
   const didInit = useRef(false)
+  const onSelectIndexRef = useRef(onSelectIndex)
+
+  useEffect(() => {
+    onSelectIndexRef.current = onSelectIndex
+  }, [onSelectIndex])
 
   useEffect(() => {
     if (!map || routes.length === 0) return
 
     const features = buildFeatures(routes, activeIndex, recommendedIndex)
+
+    const handleClick = (e: MapLayerMouseEvent) => {
+      const feature = e.features?.[0]
+      const index = feature?.properties?.routeIndex as number | undefined
+      if (typeof index === 'number' && index !== activeIndex) {
+        onSelectIndexRef.current?.(index)
+      }
+    }
+
+    const handleMouseEnter = () => {
+      if (map.getCanvas()) map.getCanvas().style.cursor = 'pointer'
+    }
+
+    const handleMouseLeave = () => {
+      if (map.getCanvas()) map.getCanvas().style.cursor = ''
+    }
 
     const setData = () => {
       const source = map.getSource(SOURCE_ID) as GeoJSONSource | undefined
@@ -139,6 +168,10 @@ export default function RouteLayer({
         },
       })
 
+      map.on('click', LINE_ID, handleClick)
+      map.on('mouseenter', LINE_ID, handleMouseEnter)
+      map.on('mouseleave', LINE_ID, handleMouseLeave)
+
       if (!didFitOnce.current) {
         didFitOnce.current = true
         const bounds = new LngLatBounds()
@@ -167,6 +200,9 @@ export default function RouteLayer({
 
     return () => {
       map.off('load', onLoad)
+      map.off('click', LINE_ID, handleClick)
+      map.off('mouseenter', LINE_ID, handleMouseEnter)
+      map.off('mouseleave', LINE_ID, handleMouseLeave)
       if (map.getLayer(LINE_ID)) map.removeLayer(LINE_ID)
       if (map.getLayer(CASING_ID)) map.removeLayer(CASING_ID)
       if (map.getSource(SOURCE_ID)) map.removeSource(SOURCE_ID)
