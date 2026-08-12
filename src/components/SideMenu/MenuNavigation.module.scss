@@ -1,0 +1,73 @@
+.nav {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 120px;
+  perspective-origin: bottom;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.item {
+  transform-style: preserve-3d;
+}
+
+.link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 4px 0;
+  color: #f4f1ec;
+  text-decoration: none;
+}
+
+.linkText {
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  line-height: 0.95;
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  transition:
+    transform 0.3s cubic-bezier(0.76, 0, 0.24, 1),
+    opacity 0.3s ease;
+}
+
+.linkArrow {
+  font-size: clamp(1.2rem, 2vw, 1.6rem);
+  line-height: 1;
+  color: rgba(244, 241, 236, 0.7);
+  opacity: 0;
+  transform: translateX(-16px);
+  transition:
+    transform 0.3s cubic-bezier(0.76, 0, 0.24, 1),
+    opacity 0.3s ease;
+}
+
+.link:hover .linkText {
+  transform: translateX(10px);
+  opacity: 0.55;
+}
+
+.link:hover .linkArrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.link:focus-visible {
+  outline: none;
+}
+
+.link:focus-visible .linkText {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 8px;
+  text-decoration-color: rgba(244, 241, 236, 0.7);
+}

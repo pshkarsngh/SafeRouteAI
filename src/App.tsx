@@ -3,7 +3,7 @@ import Intro from './sections/Intro'
 import Search from './pages/Search'
 import Projects from './pages/Projects'
 import Navbar from './components/Navigation/Navbar'
-import SideMenu from './components/SideMenu'
+import SideMenu from './components/SideMenu/SideMenu'
 
 const App = () => {
   return (

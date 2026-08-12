@@ -1,5 +1,9 @@
-import Placeholder from './Placeholder'
+import { GooeySearchBar } from '../components/ui/animated-search-1'
 
 export default function Search() {
-  return <Placeholder title="Search" description="Search. Coming soon." />
+  return (
+    <div className="w-full min-h-[100dvh] bg-white">
+      <GooeySearchBar />
+    </div>
+  )
 }
