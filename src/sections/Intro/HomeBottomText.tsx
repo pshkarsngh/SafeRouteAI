@@ -14,8 +14,8 @@ const HomeBottomText = ({ onEnter }: HomeBottomTextProps) => {
         on dit ce qui doit être dit, on fait ce qui doit être fait.
       </p>
       <div className="lg:border-3 border-2 hover:border-[#D3FD50] hover:text-[#D3FD50] lg:h-44 flex items-center px-3 pt-1 lg:px-14 border-white rounded-full uppercase">
-        <Link className="text-[6vw] lg:mt-6" to="/projects">
-          Projects
+        <Link className="text-[6vw] lg:mt-6" to="/about">
+          About
         </Link>
       </div>
       <div className="lg:border-3 border-2 hover:border-[#D3FD50] hover:text-[#D3FD50] lg:h-44 flex items-center px-3 pt-1 lg:px-14 border-white rounded-full uppercase">

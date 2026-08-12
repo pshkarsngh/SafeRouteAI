@@ -284,7 +284,11 @@
 }
 
 .facilityIcon {
-  font-size: 1rem;
+  display: block;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .facilityName {
@@ -306,6 +310,29 @@
   font-size: 0.8rem;
   font-weight: 700;
   opacity: 0.75;
+}
+
+.facilityCount {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #14181d;
+  flex-shrink: 0;
+}
+
+.facilityTotal {
+  margin-top: 4px;
+  background: rgba(22, 163, 74, 0.1);
+}
+
+.coverageTag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #16a34a;
+  color: #ffffff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
 }
 
 .whyList {

@@ -1,12 +1,16 @@
-import { useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import Map from '../components/map/Map/Map'
 import MapMarker from '../components/map/MapMarker/MapMarker'
 import RouteLayer from '../components/map/RouteLayer/RouteLayer'
 import FacilityLayer from '../components/map/FacilityLayer/FacilityLayer'
+import PoiGlyph from '../components/ui/PoiGlyph'
 import { useMap } from '../hooks/useMap'
 import { facilitiesForRoute, useSafeRoute } from '../hooks/useSafeRoute'
-import { coverageDescription } from '../utils/safety'
+import { CATEGORY_ICON } from '../config/poiIcons'
+import type { FacilityCategory } from '../config/safety'
+import type { AnalyzedRoute } from '../utils/safety'
+import type { SafetyFactors } from '../utils/routing'
 import type { Place } from '../utils/places'
 import styles from './RouteResults.module.scss'
 
@@ -20,8 +24,32 @@ function PlacePin({ place, variant }: { place: Place; variant: 'origin' | 'desti
   return <MapMarker map={map} lngLat={place.lngLat} variant={variant} />
 }
 
-const FACILITY_ICON = { police: '🚔', hospital: '🏥', hotel: '🏨' } as const
-const FACILITY_LABEL = { police: 'Police station', hospital: 'Hospital', hotel: 'Hotel' } as const
+/**
+ * Categories surfaced in the route-info card. Each `icon` is the name of the
+ * native map sprite glyph (same as the facility map markers), so the icons in
+ * the panel match the icons rendered on the map.
+ */
+const FACILITY_DISPLAY: {
+  category: FacilityCategory
+  icon: string
+  label: string
+  short: string
+}[] = [
+  { category: 'hospital', icon: CATEGORY_ICON.hospital, label: 'Hospitals', short: 'hospitals' },
+  { category: 'medicalFacility', icon: CATEGORY_ICON.medicalFacility, label: 'Medical facilities', short: 'medical' },
+  { category: 'hotel', icon: CATEGORY_ICON.hotel, label: 'Hotels', short: 'hotels' },
+  { category: 'restaurant', icon: CATEGORY_ICON.restaurant, label: 'Restaurants', short: 'restaurants' },
+  { category: 'fuel', icon: CATEGORY_ICON.fuel, label: 'Petrol pumps', short: 'petrol' },
+  { category: 'police', icon: CATEGORY_ICON.police, label: 'Police stations', short: 'police' },
+]
+
+const FACTOR_DISPLAY: { key: keyof SafetyFactors; label: string }[] = [
+  { key: 'coverage', label: 'Facility coverage' },
+  { key: 'proximity', label: 'Facility proximity' },
+  { key: 'density', label: 'Facility density' },
+  { key: 'distance', label: 'Distance' },
+  { key: 'duration', label: 'Duration' },
+]
 
 function SafetyBadge({ score }: { score: number }) {
   return (
@@ -30,6 +58,12 @@ function SafetyBadge({ score }: { score: number }) {
       <small>/100</small>
     </span>
   )
+}
+
+function coverageLabel(route: AnalyzedRoute): string {
+  if (route.safetyScore >= 85) return 'HIGH'
+  if (route.safetyScore >= 60) return 'MODERATE'
+  return 'LOW'
 }
 
 export default function RouteResults() {
@@ -50,6 +84,16 @@ export default function RouteResults() {
   const activeIndex = activeRoute ? routes.indexOf(activeRoute) : -1
   const recommendedIndex = recommended ? routes.indexOf(recommended) : -1
   const activeFacilities = activeRoute ? facilitiesForRoute(activeRoute, allFacilities) : []
+
+  // Debug: verify the UI is reading the actual analyzed route counts.
+  useEffect(() => {
+    if (status === 'ready' && activeRoute) {
+      console.log('[SafeRoute] POI DEBUG — UI binding')
+      console.log('[SafeRoute]   activeRoute.facilityCounts:', activeRoute.facilityCounts)
+      console.log('[SafeRoute]   activeRoute.totalFacilities:', activeRoute.totalFacilities)
+      console.log('[SafeRoute]   facilityError:', facilityError)
+    }
+  }, [status, activeRoute, facilityError])
 
   if (!origin || !destination) {
     return (
@@ -128,6 +172,11 @@ export default function RouteResults() {
                 Live facility data unavailable — scores use distance/time only.
               </p>
             )}
+            {!facilityError && activeRoute.totalFacilities === 0 && (
+              <p className={styles.facilityWarn}>
+                No support facilities were found within ~1 km of these routes.
+              </p>
+            )}
 
             <ol className={styles.list}>
               {routes.map((route, index) => (
@@ -149,7 +198,7 @@ export default function RouteResults() {
                         {route.recommended
                           ? 'Safest route'
                           : index === 0
-                            ? 'Fastest'
+                            ? 'Best coverage'
                             : `Route ${index + 1}`}
                         {route.recommended && (
                           <span className={styles.recoTag}>✓ Recommended</span>
@@ -158,8 +207,13 @@ export default function RouteResults() {
                       <SafetyBadge score={route.safetyScore} />
                     </span>
                     <span className={styles.rowMeta}>
-                      {route.distanceStr} · {route.durationStr} · {route.facilityCounts.police} police ·{' '}
-                      {route.facilityCounts.hospital} hospitals · {route.facilityCounts.hotel} hotels
+                      {route.distanceStr} · {route.durationStr} ·{' '}
+                      {FACILITY_DISPLAY.slice(0, 4)
+                        .map(
+                          (f) =>
+                            `${route.facilityCounts[f.category] ?? 0} ${f.short}`,
+                        )
+                        .join(' · ')}
                     </span>
                     {route.rejected && route.rejectedReason && (
                       <span className={styles.rowReject}>{route.rejectedReason}</span>
@@ -173,7 +227,7 @@ export default function RouteResults() {
               <div className={styles.card}>
                 <div className={styles.cardHead}>
                   <p className={styles.cardKicker}>
-                    {activeRoute.recommended ? '⭐ SAFE ROUTE' : 'Route info'}
+                    {activeRoute.recommended ? '⭐ SAFEST ROUTE' : 'Route info'}
                   </p>
                   <SafetyBadge score={activeRoute.safetyScore} />
                 </div>
@@ -189,45 +243,56 @@ export default function RouteResults() {
                   </span>
                 </div>
 
-                <p className={styles.cardLabel}>Safety factors</p>
-                {(Object.keys(FACILITY_LABEL) as (keyof typeof FACILITY_LABEL)[]).map(
-                  (key) => (
-                    <div className={styles.factorRow} key={key}>
-                      <span>{FACILITY_ICON[key]} {FACILITY_LABEL[key]}</span>
-                      <span className={styles.factorBar}>
-                        <i
-                          className={styles.factorFill}
-                          style={{ width: `${activeRoute.safetyFactors[key]}%` }}
-                        />
-                      </span>
-                      <b>{activeRoute.safetyFactors[key]}</b>
-                    </div>
-                  ),
-                )}
-
-                <p className={styles.cardLabel}>Nearby safety support</p>
+                <p className={styles.cardLabel}>Facilities on this route</p>
                 <ul className={styles.facilityList}>
-                  {(Object.keys(FACILITY_LABEL) as (keyof typeof FACILITY_LABEL)[]).map(
-                    (key) => {
-                      const closest = activeRoute.closestFacilities[key]
-                      return (
-                        <li key={key} className={styles.facilityItem}>
-                          <span className={styles.facilityIcon}>{FACILITY_ICON[key]}</span>
-                          <span className={styles.facilityName}>
-                            {FACILITY_LABEL[key]}
-                            <small>
-                              {activeRoute.facilityCounts[key]} nearby · coverage{' '}
-                              {coverageDescription(activeRoute.safetyFactors[key])}
-                            </small>
-                          </span>
-                          <span className={styles.facilityDist}>
-                            {closest ? `~${closest.distanceStr}` : 'n/a'}
-                          </span>
-                        </li>
-                      )
-                    },
-                  )}
+                  {FACILITY_DISPLAY.map((f) => {
+                    const closest = activeRoute.closestFacilities[f.category]
+                    return (
+                      <li key={f.category} className={styles.facilityItem}>
+                        <PoiGlyph icon={f.icon} className={styles.facilityIcon} alt={f.label} />
+                        <span className={styles.facilityName}>
+                          {f.label}
+                          <small>within ~1 km of the route</small>
+                        </span>
+                        <span className={styles.facilityCount}>
+                          {activeRoute.facilityCounts[f.category] ?? 0}
+                        </span>
+                        <span className={styles.facilityDist}>
+                          {closest ? `~${closest.distanceStr}` : 'n/a'}
+                        </span>
+                      </li>
+                    )
+                  })}
+                  <li className={`${styles.facilityItem} ${styles.facilityTotal}`}>
+                    <PoiGlyph icon="marker" className={styles.facilityIcon} alt="Total facilities" />
+                    <span className={styles.facilityName}>
+                      Total facilities
+                      <small>weighted score {activeRoute.weightedFacilityScore}</small>
+                    </span>
+                    <span className={styles.facilityCount}>
+                      {activeRoute.totalFacilities}
+                    </span>
+                    <span className={styles.coverageTag}>
+                      {coverageLabel(activeRoute)}
+                    </span>
+                  </li>
                 </ul>
+
+                <p className={styles.cardLabel}>Safety factors</p>
+                {FACTOR_DISPLAY.map((factor) => (
+                  <div className={styles.factorRow} key={factor.key}>
+                    <span>{factor.label}</span>
+                    <span className={styles.factorBar}>
+                      <i
+                        className={styles.factorFill}
+                        style={{
+                          width: `${activeRoute.safetyFactors[factor.key]}%`,
+                        }}
+                      />
+                    </span>
+                    <b>{activeRoute.safetyFactors[factor.key]}</b>
+                  </div>
+                ))}
 
                 <p className={styles.cardLabel}>Why this route?</p>
                 <ul className={styles.whyList}>
@@ -239,9 +304,10 @@ export default function RouteResults() {
                 </ul>
 
                 <p className={styles.disclaimer}>
-                  Recommended based on nearby safety infrastructure and route conditions.
-                  Facility proximity is one factor — it is not a guarantee of personal
-                  safety. Distances to facilities are approximations.
+                  Recommended based on nearby safety/support facilities and route
+                  conditions. Facility coverage is the primary ranking factor — it is
+                  not a guarantee of personal safety. Distances to facilities are
+                  approximations.
                 </p>
               </div>
             )}

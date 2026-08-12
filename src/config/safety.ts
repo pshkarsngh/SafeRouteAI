@@ -1,41 +1,65 @@
-export type FacilityCategory = 'police' | 'hospital' | 'hotel'
+/**
+ * Single configuration home for the SafeRoute ranking feature.
+ *
+ * All tunables live here so the weights / radii / score blend can be changed
+ * in one place without touching the ranking or UI code.
+ */
+
+export type FacilityCategory =
+  | 'police'
+  | 'hospital'
+  | 'medicalFacility'
+  | 'hotel'
+  | 'restaurant'
+  | 'fuel'
+
+export const FACILITY_CATEGORIES: FacilityCategory[] = [
+  'police',
+  'hospital',
+  'medicalFacility',
+  'hotel',
+  'restaurant',
+  'fuel',
+]
 
 /**
- * How far around the route each facility type is considered "nearby".
- * Values are in meters and can be tuned in one place.
+ * Configurable route proximity threshold in meters. A facility counts for a
+ * route when its straight-line (or actual road) distance to the route geometry
+ * is at or below this value.
+ */
+export const ROUTE_FACILITY_RADIUS = 1000
+
+/**
+ * Per-category radius, in meters. These default to `ROUTE_FACILITY_RADIUS`
+ * and can be widened/narrowed per category in this single file.
  */
 export const SAFETY_RADIUS: Record<FacilityCategory, number> = {
-  police: 1000,
-  hospital: 1500,
-  hotel: 1000,
+  police: ROUTE_FACILITY_RADIUS,
+  hospital: ROUTE_FACILITY_RADIUS,
+  medicalFacility: ROUTE_FACILITY_RADIUS,
+  hotel: ROUTE_FACILITY_RADIUS,
+  restaurant: ROUTE_FACILITY_RADIUS,
+  fuel: ROUTE_FACILITY_RADIUS,
 }
 
 /**
- * Contribution of each safety factor to the final score (0–1, sum = 1).
+ * Importance of each facility category when computing how much useful
+ * "safety/support" coverage a route has. Hospitals and medical facilities are
+ * the most valuable, hotels provide activity support, restaurants indicate
+ * populated/active areas.
  */
-export const SAFETY_WEIGHTS: Record<
-  'police' | 'hospital' | 'hotel' | 'distance' | 'duration',
-  number
-> = {
-  police: 0.4,
-  hospital: 0.3,
-  hotel: 0.15,
-  distance: 0.1,
-  duration: 0.05,
+export const FACILITY_WEIGHTS: Record<FacilityCategory, number> = {
+  police: 5,
+  hospital: 5,
+  medicalFacility: 5,
+  hotel: 3,
+  restaurant: 1,
+  fuel: 3,
 }
 
 /**
- * How much of a category score comes from the nearest facility vs overall
- * coverage along the whole route.
- */
-export const SCORE_BLEND = {
-  nearest: 0.7,
-  coverage: 0.3,
-}
-
-/**
- * Proximity bands used to turn a distance (meters) into a 0–100 score.
- * Beyond the last band the score keeps decaying to `FLOOR_SCORE`.
+ * Proximity bands used to turn a nearest-facility distance (meters) into a
+ * 0–100 score. Beyond the last band the score keeps decaying to `FLOOR_SCORE`.
  */
 export const PROXIMITY_BANDS: { max: number; score: number }[] = [
   { max: 250, score: 100 },
@@ -46,24 +70,43 @@ export const PROXIMITY_BANDS: { max: number; score: number }[] = [
 
 export const FLOOR_SCORE = 12
 
-/**
- * When no facilities of a category are found near a route, this neutral
- * score is used so the route is not penalised to zero for missing data.
- */
+/** When no facility of a category is near a route, this neutral proximity score is used. */
 export const MISSING_DATA_SCORE = 40
+
+/**
+ * Weighted facility count that maps to a full 100 coverage score. Routes with a
+ * weighted count at or above this are treated as having excellent coverage.
+ */
+export const FACILITY_COVERAGE_REFERENCE = 60
+
+/**
+ * Weighted facilities per route-km that maps to a full 100 density score.
+ * Routes denser than this are treated as having excellent coverage density.
+ */
+export const FACILITY_DENSITY_REFERENCE = 4
+
+/**
+ * Blend of the five factors that make up the final 0–100 safety score.
+ * The dominant factor is facility coverage, followed by proximity and density;
+ * distance and duration only break near-ties.
+ */
+export const SAFETY_SCORE_WEIGHTS = {
+  coverage: 0.5,
+  proximity: 0.2,
+  density: 0.15,
+  distance: 0.1,
+  duration: 0.05,
+}
 
 /**
  * Maximum acceptable detour compared to the shortest road route, in percent.
  * Routes longer than this are marked as unreasonable and are never recommended.
+ * (10–20% from the practical shortest route.)
  */
 export const MAX_DETOUR_PERCENT = 20
 
 /**
- * How many equally-spaced samples are taken along a route for coverage scoring.
- */
-export const COVERAGE_SAMPLES = 60
-
-/**
- * Maximum number of facilities per category kept for scoring markers.
+ * Maximum number of facilities kept per category for scoring. Guards against an
+ * unbounded facility list blowing up the count or scoring work.
  */
 export const MAX_FACILITIES_PER_CATEGORY = 60

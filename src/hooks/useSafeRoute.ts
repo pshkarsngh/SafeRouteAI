@@ -24,7 +24,7 @@ export function facilitiesForRoute(
   return facilities.filter(
     (f) =>
       distanceToPolylineMeters(f.lngLat, route.points) <= SAFETY_RADIUS[f.category] &&
-      route.facilityCounts[f.category] > 0,
+      (route.facilityCounts[f.category] ?? 0) > 0,
   )
 }
 
@@ -60,24 +60,40 @@ export function useSafeRoute(
 
     const load = async () => {
       try {
-        const { routes } = await fetchRoadRoutes(origin.lngLat, destination.lngLat)
+        const { routes: fetchedRoutes } = await fetchRoadRoutes(
+          origin.lngLat,
+          destination.lngLat,
+        )
         if (cancelled) return
 
-        const deduped = dedupeRoutes(routes)
-        const routePoints = deduped[0]?.points ?? []
+        const deduped = dedupeRoutes(fetchedRoutes)
+
+        const first = deduped[0]?.points ?? []
+        console.log('[SafeRoute] POI DEBUG — route geometry')
+        console.log(`[SafeRoute]   routes after dedupe: ${deduped.length}`)
+        console.log(`[SafeRoute]   first route geometry points: ${first.length}`)
+        if (first.length > 0) {
+          console.log(`[SafeRoute]   first coord [lng, lat]: ${JSON.stringify(first[0])}`)
+          console.log(`[SafeRoute]   last coord  [lng, lat]: ${JSON.stringify(first[first.length - 1])}`)
+          console.log(`[SafeRoute]   origin  [lng, lat]: ${JSON.stringify(origin.lngLat)}`)
+          console.log(`[SafeRoute]   dest    [lng, lat]: ${JSON.stringify(destination.lngLat)}`)
+        }
+
+        const polylines = deduped.map((route) => route.points)
         let fetchedFacilities: SafetyFacility[] = []
-        if (routePoints.length > 0) {
+        if (polylines.some((points) => points.length > 0)) {
           try {
-            fetchedFacilities = await fetchNearbyFacilities(routePoints)
+            fetchedFacilities = await fetchNearbyFacilities(polylines)
           } catch (err) {
             if (!cancelled) {
               setFacilityError(true)
-              console.warn('Facility lookup failed; scoring without facilities.', err)
+              console.warn('[SafeRoute] Facility lookup failed; scoring without facilities.', err)
             }
           }
         }
         if (cancelled) return
 
+        console.log(`[SafeRoute] POI DEBUG — total facilities to analyze: ${fetchedFacilities.length}`)
         setRoutes(analyzeRoutes(deduped, fetchedFacilities))
         setAllFacilities(fetchedFacilities)
         setStatus('ready')

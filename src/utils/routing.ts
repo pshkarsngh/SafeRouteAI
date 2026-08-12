@@ -1,8 +1,15 @@
+import type { FacilityCategory } from '../config/safety'
+
 export interface SafetyFactors {
-  police: number
-  hospital: number
-  hotel: number
+  /** 0–100 weighted facility coverage along the whole route. */
+  coverage: number
+  /** 0–100 blended proximity to the nearest facilities of each category. */
+  proximity: number
+  /** 0–100 weighted facility density per route distance. */
+  density: number
+  /** 0–100 score relative to the shortest road route. */
   distance: number
+  /** 0–100 score relative to the fastest road route. */
   duration: number
 }
 
@@ -24,12 +31,9 @@ export interface RouteCandidate {
   durationMin: number
   safetyScore?: number
   safetyFactors?: SafetyFactors
-  closestFacilities?: {
-    police?: NearestFacility
-    hospital?: NearestFacility
-    hotel?: NearestFacility
-  }
-  facilityCounts?: { police: number; hospital: number; hotel: number }
+  closestFacilities?: Partial<Record<FacilityCategory, NearestFacility>>
+  facilityCounts?: Partial<Record<FacilityCategory, number>>
+  totalFacilities?: number
   whyRecommended?: string[]
   recommended?: boolean
   rejected?: boolean
