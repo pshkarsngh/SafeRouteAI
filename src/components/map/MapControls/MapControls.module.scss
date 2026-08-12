@@ -1,0 +1,38 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  button {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+    color: #14181d;
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      transform 0.15s ease,
+      background-color 0.15s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      background: #ffffff;
+    }
+
+    &:active {
+      transform: translateY(0) scale(0.96);
+    }
+  }
+
+  .locate {
+    font-size: 1rem;
+  }
+}
